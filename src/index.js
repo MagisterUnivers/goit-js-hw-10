@@ -42,6 +42,12 @@ function createCountry(country) {
   return `<li>${country.name.common}</li>`;
 }
 
+/**
+  |============================
+  | Custom OMEGA UNIQUE - REUSABLE FUNCTION
+  |============================
+*/
+
 // async function fetchCountries(baseUrla) {
 //   const response = await fetch(`${baseUrla}`);
 //   const resultData = await response.json();
