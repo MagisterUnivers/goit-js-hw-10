@@ -10,32 +10,49 @@ const inputEl = document.getElementById('search-box');
 const ulEl = document.querySelector('.country-list');
 const mainDiv = document.querySelector('.country-info');
 
-inputEl.addEventListener('input', async e => {
-  const data = await fetchCountries(`${baseUrla + nameUrla + e.target.value}`);
-
-  console.log(data);
-
-  if (data.length > 1 && data.length <= 10) {
-    // data.name.common
-    mainDiv.innerHTML = '';
-    ulEl.innerHTML = data.map(elem => createCountry(elem)).join('');
-    Notiflix.Notify.warning('Some country was finded');
-  } else if (data.length == 1) {
-    ulEl.innerHTML = '';
-    mainDiv.innerHTML = createMainCountry(data[0]);
-    Notiflix.Notify.success('Search complete');
-  } else if (data.length > 10)
-    Notiflix.Notify.info(
-      'Too many matches found. Please enter a more specific name.'
+inputEl.addEventListener(
+  'input',
+  debounce(async e => {
+    const data = await fetchCountries(
+      `${baseUrla + nameUrla + e.target.value}`
     );
-});
+
+    console.log(data);
+
+    if (data.length > 1 && data.length <= 10) {
+      // data.name.common
+      mainDiv.innerHTML = '';
+      ulEl.innerHTML = data.map(elem => createCountry(elem)).join('');
+      Notiflix.Notify.warning('Some country was finded');
+    } else if (data.length == 1) {
+      ulEl.innerHTML = '';
+      mainDiv.innerHTML = createMainCountry(data[0]);
+      Notiflix.Notify.success('Search complete');
+    } else if (data.length > 10)
+      Notiflix.Notify.info(
+        'Too many matches found. Please enter a more specific name.'
+        // ) else if (data.value )
+      );
+  }, DEBOUNCE_DELAY)
+);
 
 function createMainCountry(country) {
-  return `<img src ='${country.flags.png}' width='40px' heigth='40px'/><p>${
-    country.capital[0]
-  }</p><p>${country.name.common}</p><p>${
-    country.population
-  }</p><p>${Object.values(country.languages)}</p>`;
+  // return `<img src ='${country.flags.png}' width='40px' heigth='40px'/><p>${
+  //   country.capital[0]
+  // }</p><p>${country.name.common}</p><p>${
+  //   country.population
+  // }</p><p>${Object.values(country.languages)}</p>`;
+
+  return `<h2><img class="card__img" src="${
+    country.flags.png
+  }" width='40px' heigth='40px' alt="Flag of ${country.name.common}" /> ${
+    country.name.common
+  }</h2>
+<ul>
+  <li><b>Capital:</b> ${country.capital[0]}</li>
+  <li><b>Population:</b> ${country.population}</li>
+  <li><b>Languages:</b> ${Object.values(country.languages)}</li>
+</ul>`;
 }
 
 function createCountry(country) {
