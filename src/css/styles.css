@@ -13,8 +13,16 @@ body {
 }
 
 #search-box {
-  font: inherit;
-  padding: 8px;
-  max-width: 320px;
-  margin-bottom: 16px;
+  width: 500px;
+  box-sizing: border-box;
+  border: 3px solid #ccc;
+  outline: none;
+  margin: 8px 0;
+  padding: 12px 20px;
+  font-size: 20px;
+  transition: all .5s;
+}
+
+#search-box:focus {
+  border: 3px solid #555;
 }
