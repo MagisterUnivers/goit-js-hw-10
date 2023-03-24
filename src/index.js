@@ -1,5 +1,6 @@
 import './css/styles.css';
 import debounce from 'lodash.debounce';
+import Notiflix from 'notiflix';
 
 const DEBOUNCE_DELAY = 300;
 
@@ -8,9 +9,6 @@ const nameUrla = '/v3.1/name/';
 const inputEl = document.getElementById('search-box');
 const ulEl = document.querySelector('.country-list');
 const mainDiv = document.querySelector('.country-info');
-
-ulEl.innerHTML = '';
-mainDiv.innerHTML = '';
 
 inputEl.addEventListener('input', async e => {
   const data = await fetchCountries(`${baseUrla + nameUrla + e.target.value}`);
@@ -21,10 +19,15 @@ inputEl.addEventListener('input', async e => {
     // data.name.common
     mainDiv.innerHTML = '';
     ulEl.innerHTML = data.map(elem => createCountry(elem)).join('');
+    Notiflix.Notify.warning('Some country was finded');
   } else if (data.length == 1) {
     ulEl.innerHTML = '';
     mainDiv.innerHTML = createMainCountry(data[0]);
-  }
+    Notiflix.Notify.success('Search complete');
+  } else if (data.length > 10)
+    Notiflix.Notify.info(
+      'Too many matches found. Please enter a more specific name.'
+    );
 });
 
 function createMainCountry(country) {
@@ -39,25 +42,37 @@ function createCountry(country) {
   return `<li>${country.name.common}</li>`;
 }
 
-async function fetchCountries(baseUrla) {
-  const response = await fetch(`${baseUrla}`);
-  const resultData = await response.json();
-  // .then(async response => {
-  //   if (!response.ok) {
-  //     throw new Error(response.status);
-  //   }
-  //   return await response.json();
-  // })
-  // .then(async data => {
-  //   resultData = data;
-  // })
-  // .catch(async error => {
-  //   return await error;
-  // });
-  return resultData;
-}
+// async function fetchCountries(baseUrla) {
+//   const response = await fetch(`${baseUrla}`);
+//   const resultData = await response.json();
+//   // .then(async response => {
+//   //   if (!response.ok) {
+//   //     throw new Error(response.status);
+//   //   }
+//   //   return await response.json();
+//   // })
+//   // .then(async data => {
+//   //   resultData = data;
+//   // })
+//   // .catch(async error => {
+//   //   return await error;
+//   // });
+//   return resultData;
+// }
 
-// image name.common
-// capital;
-// population;
-// languages;
+async function fetchCountries(baseUrla) {
+  try {
+    const response = await fetch(`${baseUrla}`);
+    if (response.ok) {
+      const resultData = await response.json();
+      return resultData;
+    } else {
+      throw new Error(response.status);
+    }
+  } catch (error) {
+    Notiflix.Notify.failure(`No countrys was found: ${error}`);
+    ulEl.innerHTML = '';
+    mainDiv.innerHTML = '';
+    return error;
+  }
+}
