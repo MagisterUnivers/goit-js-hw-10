@@ -16,6 +16,8 @@ inputEl.addEventListener(
   'input',
   debounce(async e => {
     if (e.target.value.trim() != '') {
+      mainDiv.innerHTML = '';
+      ulEl.innerHTML = '';
       const data = await fetchCountries(
         `${baseUrla + nameUrla + e.target.value.trim()}`
       );
@@ -26,7 +28,7 @@ inputEl.addEventListener(
         mainDiv.innerHTML = '';
         ulEl.innerHTML = data.map(elem => createCountry(elem)).join('');
         Notiflix.Notify.warning('Some country was found');
-      } else if (data.length == 1) {
+      } else if (data.length === 1) {
         ulEl.innerHTML = '';
         mainDiv.innerHTML = createMainCountry(data[0]);
         Notiflix.Notify.success('Search complete');
@@ -35,6 +37,9 @@ inputEl.addEventListener(
           'Too many matches found. Please enter a more specific name.'
         );
       }
+    } else {
+      mainDiv.innerHTML = '';
+      ulEl.innerHTML = '';
     }
   }, DEBOUNCE_DELAY)
 );
@@ -59,7 +64,8 @@ function createMainCountry(country) {
 }
 
 function createCountry(country) {
-  return `<li>${country.name.common}</li>`;
+  // return `<li>${country.name.common}</li>`
+  return `<li class = "list__item"><img class='list__img' src="${country.flags.svg}" alt="Flag of ${country.name.common}" width = '40px' heigth = '40px'>  ${country.name.common}</li>`;
 }
 
 /**
