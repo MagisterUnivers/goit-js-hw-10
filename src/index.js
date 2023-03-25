@@ -2,6 +2,8 @@ import './css/styles.css';
 import debounce from 'lodash.debounce';
 import Notiflix from 'notiflix';
 
+import { fetchCountries } from './fetchCountries.js';
+
 const DEBOUNCE_DELAY = 300;
 
 const baseUrla = 'https://restcountries.com';
@@ -13,26 +15,27 @@ const mainDiv = document.querySelector('.country-info');
 inputEl.addEventListener(
   'input',
   debounce(async e => {
-    const data = await fetchCountries(
-      `${baseUrla + nameUrla + e.target.value}`
-    );
-
-    console.log(data);
-
-    if (data.length > 1 && data.length <= 10) {
-      // data.name.common
-      mainDiv.innerHTML = '';
-      ulEl.innerHTML = data.map(elem => createCountry(elem)).join('');
-      Notiflix.Notify.warning('Some country was finded');
-    } else if (data.length == 1) {
-      ulEl.innerHTML = '';
-      mainDiv.innerHTML = createMainCountry(data[0]);
-      Notiflix.Notify.success('Search complete');
-    } else if (data.length > 10)
-      Notiflix.Notify.info(
-        'Too many matches found. Please enter a more specific name.'
-        // ) else if (data.value )
+    if (e.target.value.trim() != '') {
+      const data = await fetchCountries(
+        `${baseUrla + nameUrla + e.target.value.trim()}`
       );
+
+      console.log(data);
+
+      if (data.length > 1 && data.length <= 10) {
+        mainDiv.innerHTML = '';
+        ulEl.innerHTML = data.map(elem => createCountry(elem)).join('');
+        Notiflix.Notify.warning('Some country was found');
+      } else if (data.length == 1) {
+        ulEl.innerHTML = '';
+        mainDiv.innerHTML = createMainCountry(data[0]);
+        Notiflix.Notify.success('Search complete');
+      } else if (data.length > 10) {
+        Notiflix.Notify.info(
+          'Too many matches found. Please enter a more specific name.'
+        );
+      }
+    }
   }, DEBOUNCE_DELAY)
 );
 
@@ -84,20 +87,3 @@ function createCountry(country) {
 // }
 
 //  commit
-
-async function fetchCountries(baseUrla) {
-  try {
-    const response = await fetch(`${baseUrla}`);
-    if (response.ok) {
-      const resultData = await response.json();
-      return resultData;
-    } else {
-      throw new Error(response.status);
-    }
-  } catch (error) {
-    Notiflix.Notify.failure(`No countrys was found: ${error}`);
-    ulEl.innerHTML = '';
-    mainDiv.innerHTML = '';
-    return error;
-  }
-}
